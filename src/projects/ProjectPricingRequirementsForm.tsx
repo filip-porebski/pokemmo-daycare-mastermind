@@ -33,10 +33,16 @@ export function ProjectPricingRequirementsForm(props: { project: IProject }) {
         if (prices.length === 0) return 0;
 
         const totalPrice = prices.reduce((acc, price) => acc + price, 0);
-        return Math.round(totalPrice / prices.length);
+        return totalPrice / prices.length;
     };
 
-    const averagePrice = calculateAveragePrice();
+    // Format the average price using Intl.NumberFormat to match currency formatting
+    const formattedAveragePrice = new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'JPY',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(calculateAveragePrice());
 
     return (
         <>
@@ -71,7 +77,7 @@ export function ProjectPricingRequirementsForm(props: { project: IProject }) {
                             width: "451.44px",
                         }}
                     >
-                        ¥{averagePrice}
+                        {formattedAveragePrice}
                     </div>
                 </FormLabel>
             </FormRow>
@@ -119,7 +125,7 @@ export function ProjectPricingRequirementsForm(props: { project: IProject }) {
                                             type="number"
                                             beforeNode="¥"
                                             value={
-                                                data.prices.male ?? averagePrice
+                                                data.prices.male ?? calculateAveragePrice()
                                             }
                                             onChange={(malePricing: number) => {
                                                 onIVPricingChange({
@@ -141,7 +147,7 @@ export function ProjectPricingRequirementsForm(props: { project: IProject }) {
                                             beforeNode="¥"
                                             value={
                                                 data.prices.female ??
-                                                averagePrice
+                                                calculateAveragePrice()
                                             }
                                             onChange={(femalePricing: number) => {
                                                 onIVPricingChange({
