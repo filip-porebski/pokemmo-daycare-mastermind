@@ -1,11 +1,5 @@
-/**
- * @copyright 2020 Adam (charrondev) Charron
- * @license GPL-3.0-only
- */
-
-import { BreedStatus, IPokemon } from "@pokemmo/pokemon/PokemonTypes";
-import { stubSlice } from "@pokemmo/projects/stubSlice";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { IPokemon } from "@pokemmo/pokemon/PokemonTypes";
 
 export type PokemonByID = Record<string, IPokemon>;
 
@@ -20,62 +14,29 @@ const INITIAL_POKEMON_STATE: IPokemonState = {
 };
 
 export const pokemonSlice = createSlice({
-    name: "projects",
+    name: "pokemon",
     initialState: INITIAL_POKEMON_STATE,
     reducers: {
-        addPokemon: (
-            state: IPokemonState,
-            action: PayloadAction<IPokemon[]>,
-        ) => {
-            action.payload.forEach(pokemon => {
+        addPokemon: (state, action: PayloadAction<IPokemon[]>) => {
+            action.payload.forEach((pokemon) => {
                 state.pokemonByID[pokemon.id] = pokemon;
             });
         },
-        deletePokemon: (
-            state: IPokemonState,
-            action: PayloadAction<{ pokemon: IPokemon }>,
-        ) => {
-            const pokemonID = action.payload.pokemon.id;
-            if (state.pokemonByID[pokemonID]) {
-                delete state.pokemonByID[pokemonID];
+        updatePokemonInStore: (state, action: PayloadAction<IPokemon>) => {
+            const updatedPokemon = action.payload;
+            if (state.pokemonByID[updatedPokemon.id]) {
+                state.pokemonByID[updatedPokemon.id] = updatedPokemon;
+                console.log("Successfully updated Pokémon in store:", updatedPokemon);
+            } else {
+                console.error("Failed to update Pokémon. ID not found:", updatedPokemon.id);
             }
         },
-        setBreedStatus: (
-            state,
-            action: PayloadAction<{
-                pokemonID: string;
-                status: BreedStatus;
-            }>,
-        ) => {
-            const { pokemonID, status } = action.payload;
-            const pokemon = state.pokemonByID[pokemonID];
-            pokemon.breedStatus = status;
+        deletePokemon: (state, action: PayloadAction<{ pokemonID: string }>) => {
+            const { pokemonID } = action.payload;
+            delete state.pokemonByID[pokemonID];
         },
     },
-    extraReducers: builder => {
-        builder
-            .addCase(stubSlice.actions.attachPokemonToStub, (state, action) => {
-                const { projectID, pokemonID } = action.payload;
-                const pokemon = state.pokemonByID[pokemonID];
-                if (pokemon) {
-                    if (pokemon.projectIDs) {
-                        pokemon.projectIDs.push(projectID);
-                    } else {
-                        pokemon.projectIDs = [projectID];
-                    }
-                }
-            })
-            .addCase(
-                stubSlice.actions.detachPokemonFromStub,
-                (state, action) => {
-                    const { projectID, pokemonID } = action.payload;
-                    const pokemon = state.pokemonByID[pokemonID];
-                    if (pokemon) {
-                        const ids = new Set(pokemon.projectIDs);
-                        ids.delete(projectID);
-                        pokemon.projectIDs = [];
-                    }
-                },
-            );
-    },
 });
+
+export const { addPokemon, updatePokemonInStore, deletePokemon } = pokemonSlice.actions;
+export default pokemonSlice.reducer;

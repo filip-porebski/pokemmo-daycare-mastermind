@@ -148,7 +148,7 @@ export function PokemonSelect(_props: IProps) {
 
 const formatPokemonLabel = (
     option: OptionTypeBase,
-    meta: FormatOptionLabelMeta<any>,
+    meta: FormatOptionLabelMeta<any, boolean>,
 ) => {
     if (!option.pokedexMon || meta.context !== "menu") {
         return option.label;

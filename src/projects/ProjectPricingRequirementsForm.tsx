@@ -1,8 +1,3 @@
-/**
- * @copyright 2020 Adam (charrondev)
- * @license GPL-3.0-only
- */
-
 import { FormHeading } from "@pokemmo/form/FormHeading";
 import { FormInput } from "@pokemmo/form/FormInput"; // Ensure this import is present
 import { FormLabel } from "@pokemmo/form/FormLabel";
@@ -19,6 +14,8 @@ export function ProjectPricingRequirementsForm(props: { project: IProject }) {
     const { updateProject } = useProjectActions();
 
     const ivPricing = project.ivPricing;
+    const DEFAULT_PRICE = 10000; // Default price to use if no specific price is set
+
     const onIVPricingChange = (ivPricing: IVRequirements) => {
         updateProject({ projectID, ivPricing });
     };
@@ -26,7 +23,10 @@ export function ProjectPricingRequirementsForm(props: { project: IProject }) {
     // Calculate the average price dynamically based on male and female prices for each stat.
     const calculateAveragePrice = (): number => {
         const prices = Object.values(ivPricing)
-            .map(data => [data.prices.male, data.prices.female])
+            .map(data => [
+                data.prices.male ?? DEFAULT_PRICE,
+                data.prices.female ?? DEFAULT_PRICE,
+            ])
             .flat()
             .filter(price => price != null) as number[];
 
@@ -107,66 +107,62 @@ export function ProjectPricingRequirementsForm(props: { project: IProject }) {
                         </tr>
                     </thead>
                     <tbody>
-                        {Object.entries(ivPricing).map(([stat, data]) => {
-                            if (data.value === 0 || data.value == null) {
-                                return <React.Fragment key={stat} />;
-                            }
+    {Object.entries(ivPricing)
+        .filter(([_, data]) => data.value && data.value > 0) // Filter to only include stats with a value set
+        .map(([stat, data]) => (
+            <tr key={stat}>
+                <th>
+                    <StatView
+                        stat={stat as Stat}
+                        points={data.value}
+                    />
+                </th>
+                <td>
+                    <FormInput
+                        type="number"
+                        beforeNode="¥"
+                        value={
+                            data.prices.male ?? 10000
+                        }
+                        onChange={(malePricing: number) => {
+                            onIVPricingChange({
+                                ...ivPricing,
+                                [stat]: {
+                                    ...data,
+                                    prices: {
+                                        ...data.prices,
+                                        [Gender.MALE]: malePricing,
+                                    },
+                                },
+                            });
+                        }}
+                    />
+                </td>
+                <td>
+                    <FormInput
+                        type="number"
+                        beforeNode="¥"
+                        value={
+                            data.prices.female ?? 10000
+                        }
+                        onChange={(femalePricing: number) => {
+                            onIVPricingChange({
+                                ...ivPricing,
+                                [stat]: {
+                                    ...data,
+                                    prices: {
+                                        ...data.prices,
+                                        [Gender.FEMALE]: femalePricing,
+                                    },
+                                },
+                            });
+                        }}
+                    />
+                </td>
+            </tr>
+        ))}
+</tbody>
 
-                            return (
-                                <tr key={stat}>
-                                    <th>
-                                        <StatView
-                                            stat={stat as Stat}
-                                            points={data.value}
-                                        />
-                                    </th>
-                                    <td>
-                                        <FormInput
-                                            type="number"
-                                            beforeNode="¥"
-                                            value={
-                                                data.prices.male ?? calculateAveragePrice()
-                                            }
-                                            onChange={(malePricing: number) => {
-                                                onIVPricingChange({
-                                                    ...ivPricing,
-                                                    [stat]: {
-                                                        ...data,
-                                                        prices: {
-                                                            ...data.prices,
-                                                            [Gender.MALE]: malePricing,
-                                                        },
-                                                    },
-                                                });
-                                            }}
-                                        />
-                                    </td>
-                                    <td>
-                                        <FormInput
-                                            type="number"
-                                            beforeNode="¥"
-                                            value={
-                                                data.prices.female ??
-                                                calculateAveragePrice()
-                                            }
-                                            onChange={(femalePricing: number) => {
-                                                onIVPricingChange({
-                                                    ...ivPricing,
-                                                    [stat]: {
-                                                        ...data,
-                                                        prices: {
-                                                            ...data.prices,
-                                                            [Gender.FEMALE]: femalePricing,
-                                                        },
-                                                    },
-                                                });
-                                            }}
-                                        />
-                                    </td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
                 </table>
             </FormRow>
         </>
