@@ -16,7 +16,7 @@ export function HelpPage() {
                     <h2>Help & Debugging</h2>
                     <p>
                         This software is currently{" "}
-                        <strong>Alpha Quality.</strong>As a result the only
+                        <strong>Alpha Quality.</strong> As a result the only
                         support offered is to reset all state.
                     </p>
                     <FormButton

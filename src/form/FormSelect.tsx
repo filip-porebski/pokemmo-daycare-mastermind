@@ -3,16 +3,18 @@
  * @license GPL-3.0-only
  */
 
+import React from 'react';
 import { FormError } from "@pokemmo/form/FormError";
 import { inputCSS, inputFocusCSS } from "@pokemmo/form/FormInput";
 import { useLabeledInputProps } from "@pokemmo/form/FormLabel";
 import { BaseFormSelectProps } from "@pokemmo/form/FormSelectProps";
 import { colorPrimary, colorPrimaryState } from "@pokemmo/styles/variables";
 import { FieldMetaProps, useField } from "formik";
-import React, { useEffect } from "react";
-import Select, { ValueType } from "react-select";
+import { useEffect } from "react";
+import Select, { OptionTypeBase, ValueType } from "react-select";
 import makeAnimated from "react-select/animated";
 import AsyncSelect, { AsyncProps } from "react-select/async";
+
 
 const animatedComponents = makeAnimated();
 
@@ -20,7 +22,7 @@ export interface FormSelectProps<T>
     extends Omit<BaseFormSelectProps<any>, "onChange" | "value">,
         Partial<AsyncProps<any>> {
     // fieldName: string;
-    makeOptionFromValue: (value: string | null) => ValueType<T> | null;
+    makeOptionFromValue: (value: string | null) => ValueType<T, false> | null;
     meta?: FieldMetaProps<T>;
     onTouched?: (isTouched: boolean) => void;
     onChange: (values: string[] | string | null) => void;
@@ -44,7 +46,7 @@ const indicatorStyles = {
     },
 };
 
-export function FormSelect<T extends { value: string }>(
+export function FormSelect<T extends OptionTypeBase>(
     _props: FormSelectProps<T>,
 ) {
     const {
