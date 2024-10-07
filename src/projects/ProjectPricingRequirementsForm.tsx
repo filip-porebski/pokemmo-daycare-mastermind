@@ -1,10 +1,10 @@
 /**
- * @copyright 2020 Adam (charrondev) Charron
+ * @copyright 2020 Adam (charrondev)
  * @license GPL-3.0-only
  */
 
 import { FormHeading } from "@pokemmo/form/FormHeading";
-import { FormInput } from "@pokemmo/form/FormInput";
+import { FormInput } from "@pokemmo/form/FormInput"; // Ensure this import is present
 import { FormLabel } from "@pokemmo/form/FormLabel";
 import { FormRow } from "@pokemmo/form/FormRow";
 import { Gender, IVRequirements, Stat } from "@pokemmo/pokemon/PokemonTypes";
@@ -17,14 +17,26 @@ export function ProjectPricingRequirementsForm(props: { project: IProject }) {
     const { project } = props;
     const { projectID } = project;
     const { updateProject } = useProjectActions();
-    const onAveragePriceChange = (averagePricing: number) => {
-        updateProject({ projectID, averagePricing });
-    };
-    const averagePrice = project.averagePricing;
+
     const ivPricing = project.ivPricing;
     const onIVPricingChange = (ivPricing: IVRequirements) => {
         updateProject({ projectID, ivPricing });
     };
+
+    // Calculate the average price dynamically based on male and female prices for each stat.
+    const calculateAveragePrice = (): number => {
+        const prices = Object.values(ivPricing)
+            .map(data => [data.prices.male, data.prices.female])
+            .flat()
+            .filter(price => price != null) as number[];
+
+        if (prices.length === 0) return 0;
+
+        const totalPrice = prices.reduce((acc, price) => acc + price, 0);
+        return Math.round(totalPrice / prices.length);
+    };
+
+    const averagePrice = calculateAveragePrice();
 
     return (
         <>
@@ -37,12 +49,30 @@ export function ProjectPricingRequirementsForm(props: { project: IProject }) {
                     css={{ maxWidth: 400 }}
                     label="Average Price (across all stats)"
                 >
-                    <FormInput
-                        type="number"
-                        beforeNode="¥"
-                        value={averagePrice}
-                        onChange={onAveragePriceChange}
-                    />
+                    <div
+                        style={{
+                            alignItems: "center",
+                            backgroundColor: "rgb(238, 238, 238)", // Lighter gray background
+                            borderBottom: "2px solid rgb(200, 200, 200)", // Softer gray border
+                            borderLeft: "2px solid rgb(200, 200, 200)",
+                            borderRight: "2px solid rgb(200, 200, 200)",
+                            borderTop: "2px solid rgb(200, 200, 200)",
+                            borderRadius: "6px",
+                            boxSizing: "border-box",
+                            color: "rgb(120, 120, 120)", // Slightly darker gray text
+                            display: "inline-flex",
+                            fontFamily: `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif`,
+                            height: "42.39px",
+                            lineHeight: "18.4px",
+                            minWidth: "200px",
+                            padding: "9px 12px",
+                            textAlign: "left",
+                            transition: "all 0.2s ease",
+                            width: "451.44px",
+                        }}
+                    >
+                        ¥{averagePrice}
+                    </div>
                 </FormLabel>
             </FormRow>
             <FormRow itemStyles={{ flexGrow: 1 }}>
@@ -91,7 +121,7 @@ export function ProjectPricingRequirementsForm(props: { project: IProject }) {
                                             value={
                                                 data.prices.male ?? averagePrice
                                             }
-                                            onChange={malePricing => {
+                                            onChange={(malePricing: number) => {
                                                 onIVPricingChange({
                                                     ...ivPricing,
                                                     [stat]: {
@@ -113,7 +143,7 @@ export function ProjectPricingRequirementsForm(props: { project: IProject }) {
                                                 data.prices.female ??
                                                 averagePrice
                                             }
-                                            onChange={femalePricing => {
+                                            onChange={(femalePricing: number) => {
                                                 onIVPricingChange({
                                                     ...ivPricing,
                                                     [stat]: {
