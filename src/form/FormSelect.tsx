@@ -1,8 +1,3 @@
-/**
- * @copyright 2020 Adam (charrondev) Charron
- * @license GPL-3.0-only
- */
-
 import React from 'react';
 import { FormError } from "@pokemmo/form/FormError";
 import { inputCSS, inputFocusCSS } from "@pokemmo/form/FormInput";
@@ -15,13 +10,11 @@ import Select, { OptionTypeBase, ValueType } from "react-select";
 import makeAnimated from "react-select/animated";
 import AsyncSelect, { AsyncProps } from "react-select/async";
 
-
 const animatedComponents = makeAnimated();
 
-export interface FormSelectProps<T>
-    extends Omit<BaseFormSelectProps<any>, "onChange" | "value">,
-        Partial<AsyncProps<any>> {
-    // fieldName: string;
+export interface FormSelectProps<T extends OptionTypeBase>
+    extends Omit<BaseFormSelectProps<T>, "onChange" | "value">,
+        Partial<AsyncProps<T>> {
     makeOptionFromValue: (value: string | null) => ValueType<T, false> | null;
     meta?: FieldMetaProps<T>;
     onTouched?: (isTouched: boolean) => void;
@@ -29,12 +22,12 @@ export interface FormSelectProps<T>
     value: string | string[] | null;
 }
 
-export type FormSelectFieldProps<T> = Omit<
+export type FormSelectFieldProps<T extends OptionTypeBase> = Omit<
     FormSelectProps<T>,
     "onChange" | "value" | "meta" | "onTouched"
 > & { fieldName: string; forceValue?: string };
 
-export type SpecializedSelect<T> = Omit<
+export type SpecializedSelect<T extends OptionTypeBase> = Omit<
     T,
     "formatOptionsLabel" | "options" | "makeOptionFromValue"
 >;
@@ -139,7 +132,7 @@ export function FormSelect<T extends OptionTypeBase>(
     );
 }
 
-export function FormSelectField<T extends { value: string }>(
+export function FormSelectField<T extends OptionTypeBase>(
     _props: FormSelectFieldProps<T> & {
         initialValue?: string | string[];
     },
