@@ -71,7 +71,7 @@ export interface BaseFormSelectProps<
       instead. For a list of the components that can be passed in, and the shape
       that will be passed to them, see [the components docs](/api#components)
     */
-    components?: SelectComponentsConfig<OptionType>;
+    components?: SelectComponentsConfig<OptionType, boolean>;
     /* Whether the value of the select, e.g. SingleValue, should be displayed in the control. */
     controlShouldRenderValue?: boolean;
     /* Delimiter used to join multiple values into a single HTML Input value */
@@ -85,7 +85,7 @@ export interface BaseFormSelectProps<
     /* Formats option labels in the menu and control as React components */
     formatOptionLabel?: (
         option: OptionType,
-        labelMeta: FormatOptionLabelMeta<OptionType>,
+        labelMeta: FormatOptionLabelMeta<OptionType, boolean>,
     ) => React.ReactNode;
     /* Resolves option data to a string to be displayed as the label by components */
     getOptionLabel?: getOptionLabel<OptionType>;
@@ -149,7 +149,7 @@ export interface BaseFormSelectProps<
     /* Handle blur events on the control */
     onBlur?: FocusEventHandler;
     /* Handle change events on the select */
-    onChange?: (value: ValueType<OptionType>, action: ActionMeta) => void;
+    onChange?: (value: ValueType<OptionType, boolean>, action: ActionMeta<OptionType>) => void;
     /* Handle focus events on the control */
     onFocus?: FocusEventHandler;
     /* Handle change events on the input */
@@ -177,7 +177,7 @@ export interface BaseFormSelectProps<
     /* Status to relay to screen readers */
     screenReaderStatus?: (obj: { count: number }) => string;
     /* Style modifier methods */
-    styles?: StylesConfig;
+    styles?: StylesConfig<OptionType, boolean>;
     /* Theme modifier method */
     theme?: ThemeConfig;
     /* Sets the tabIndex attribute on the input */
@@ -185,9 +185,9 @@ export interface BaseFormSelectProps<
     /* Select the currently focused option when the user presses tab */
     tabSelectsValue?: boolean;
     /* The value of the select; reflected by the selected option */
-    value?: ValueType<OptionType>;
+    value?: ValueType<OptionType, boolean>;
 
     defaultInputValue?: string;
     defaultMenuIsOpen?: boolean;
-    defaultValue?: ValueType<OptionType>;
+    defaultValue?: ValueType<OptionType, boolean>;
 }
