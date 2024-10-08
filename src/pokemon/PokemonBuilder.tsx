@@ -151,13 +151,10 @@ export class PokemonBuilder extends PokemonStoreAccessor {
      * Calculate the pokemon's ID based on it's info.
      */
     private calculateID() {
-        const id = `${this._identifier}-${
-            this._gender
-        }-${PokemonBuilder.ivRequirementsAsString(this._ivs)}-${
-            this._nature ? this._nature + "-" : ""
-        }${this._uuid}`;
-        this._id = id;
-        return id;
+        if (!this._id) {
+            this._id = `${this._identifier}-${this._gender}-${PokemonBuilder.ivRequirementsAsString(this._ivs)}-${this._nature ? this._nature + "-" : ""}${this._uuid}`;
+        }
+        return this._id;
     }
 
     public static ivRequirementsAsString(ivs: IVRequirements): string {
