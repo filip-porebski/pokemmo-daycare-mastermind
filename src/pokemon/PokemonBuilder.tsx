@@ -204,6 +204,16 @@ export class PokemonBuilder extends PokemonStoreAccessor {
             iv => iv.value !== 0 && iv.value != null,
         ).length;
     
+        // Logic adjustment: Compare current female stats with the child stats to see if breeding is still beneficial.
+        const femaleParentIVs = subtractIVRequirement(childStub.ivs, mostExpensive.stat);
+        const isBreedingBeneficial = this.shouldBreedForImprovement(childStub.ivs, femaleParentIVs);
+    
+        // We only skip breeding if all stats in the child are either equal or worse than those in the female, and there's no nature benefit.
+        if (statCount <= 1 || !isBreedingBeneficial) {
+            return EMPTY_PARENT_GROUP;
+        }
+    
+        // Continue with the regular breeding process if beneficial
         const firstParentGender = swapGender(mostExpensive.gender);
         const secondParentGender = mostExpensive.gender;
     
@@ -231,15 +241,32 @@ export class PokemonBuilder extends PokemonStoreAccessor {
         const firstAncestors = this.internalCalculateBreeders(firstParent, options);
         const secondAncestors = this.internalCalculateBreeders(secondParent, options);
     
-        // Explicitly assign the male and female properties
-        return {
-            parents: {
-                male: firstParentGender === Gender.MALE ? firstParent : secondParent,
-                female: firstParentGender === Gender.FEMALE ? firstParent : secondParent,
-            },
-            allParents: [...firstAncestors.allParents, ...secondAncestors.allParents],
-        };
+        return { 
+            parents: { 
+                male: firstParentGender === Gender.MALE ? firstParent : secondParent, 
+                female: firstParentGender === Gender.FEMALE ? firstParent : secondParent 
+            }, 
+            allParents: [firstParent, ...firstAncestors.allParents, secondParent, ...secondAncestors.allParents] 
+        };        
     }
+    
+    /**
+     * Determine if breeding will result in an improvement worth pursuing.
+     * We only skip breeding if no stat gains or nature improvements are possible.
+     */
+    private shouldBreedForImprovement(childIVs: IVRequirements, femaleIVs: IVRequirements): boolean {
+        for (const stat of Object.keys(childIVs)) {
+            const childValue = childIVs[stat as Stat].value ?? 0;
+            const femaleValue = femaleIVs[stat as Stat].value ?? 0;
+    
+            // Breeding is beneficial if the child requires a stat higher than the female or needs nature improvement
+            if (childValue > femaleValue) {
+                return true;
+            }
+        }
+        return false; // Skip breeding if the female already has equal or better stats for all relevant IVs
+    }
+    
     
 
     private makeBreedingStub(
