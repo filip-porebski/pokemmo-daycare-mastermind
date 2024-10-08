@@ -136,27 +136,22 @@ export const projectsSlice = createSlice({
                 }
             })
             .addCase(pokemonSlice.actions.deletePokemon, (state, action) => {
-                const pokemon = action.payload.pokemon; // Updated to handle the payload structure correctly
-                if (pokemon && pokemon.projectIDs) {
-                    pokemon.projectIDs.forEach(projectID => {
-                        const project = state.projectsByID[projectID];
-                        if (project) {
-                            if (project.targetPokemonID === pokemon.id) {
-                                // Delete the project.
-                                delete state.projectsByID[projectID];
-                            } else {
-                                // Go through all breeder stubs and remove the pokemon.
-                                Object.values(project.breederStubs)
-                                    .flat()
-                                    .forEach(stub => {
-                                        if (stub.attachedPokemonID === pokemon.id) {
-                                            stub.attachedPokemonID = null;
-                                        }
-                                    });
-                            }
-                        }
-                    });
-                }
+                const pokemonID = action.payload.pokemonID; // Corrected to use pokemonID
+                Object.values(state.projectsByID).forEach(project => {
+                    if (project.targetPokemonID === pokemonID) {
+                        // Delete the project if the target Pokémon ID matches.
+                        delete state.projectsByID[project.projectID];
+                    } else {
+                        // Otherwise, go through all breeder stubs and remove the Pokémon reference.
+                        Object.values(project.breederStubs)
+                            .flat()
+                            .forEach(stub => {
+                                if (stub.attachedPokemonID === pokemonID) {
+                                    stub.attachedPokemonID = null;
+                                }
+                            });
+                    }
+                });
             })            
 });
 
