@@ -1,6 +1,6 @@
 /**
- * @copyright 2020 Adam (charrondev) Charron
- * @license GPL-3.0-only
+ * @copyright 2020 Adam (charrondev) Charron Changes 2024 onwards filip-porebski
+ * @license Proprietary - All Rights Reserved
  */
 
 import { css } from "@emotion/core";
