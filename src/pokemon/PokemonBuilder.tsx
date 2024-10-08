@@ -208,72 +208,64 @@ export class PokemonBuilder extends PokemonStoreAccessor {
         childStub: IPokemonBreederStub,
         options: IParentOptions = DEFAULT_PARENT_BUILDER_OPTIONS,
     ): IStubAncestors {
-        // const stub = "stubHash" in pokemonOrStub ? pokemonOrStub : makeBreedingStub()
-
-        // This is the stat/gender that's most expensive.
-        // It should be elimated first.
+        // Determine the most expensive stat and gender for breeding.
         const mostExpensive = this.getMostExpensiveStatGender(childStub.ivs);
-
+    
         if (!mostExpensive) {
-            return EMPTY_PARENT_GROUP;
+            return EMPTY_PARENT_GROUP; // If there's no stat to improve, skip breeding.
         }
-        let statCount = Object.values(childStub.ivs).filter(
-            iv => iv.value !== 0 && iv.value != null,
+    
+        // Check if the selected stat breeding is actually necessary.
+        const statCount = Object.values(childStub.ivs).filter(
+            iv => iv.value !== 0 && iv.value != null
         ).length;
         const firstParentStat = mostExpensive.stat;
-
-        // Select genders and names
-        const { forcedIdentifier } = childStub;
+    
+        // Optimization: If the female has a higher or equal stat, skip this breeding.
+        if (this.shouldSkipBreeding(childStub.ivs, firstParentStat, Gender.FEMALE)) {
+            console.log(`Skipping breeding for ${firstParentStat} because female already has a higher stat.`);
+            return EMPTY_PARENT_GROUP;
+        }
+    
+        // Continue with parent selection logic.
+        const forcedIdentifier = childStub.forcedIdentifier;
         const firstParentGender = swapGender(mostExpensive.gender);
-
+    
         // The female identifier must be preserved down the purely female line.
         const forcedIdentifierForGender = (gender: Gender): string | null => {
-            if (gender === Gender.FEMALE && forcedIdentifier) {
-                return forcedIdentifier;
-            } else {
-                return null;
-            }
+            return gender === Gender.FEMALE && forcedIdentifier ? forcedIdentifier : null;
         };
         const allowedIdentifiersForGender = (gender: Gender): string[] => {
-            if (gender === Gender.FEMALE && forcedIdentifier) {
-                return [forcedIdentifier];
-            } else {
-                return Array.from(
-                    new Set([
-                        ...childStub.allowedIdentifiers,
-                        ...options.allowedIdentifiers,
-                    ]),
-                );
-            }
+            return gender === Gender.FEMALE && forcedIdentifier
+                ? [forcedIdentifier]
+                : Array.from(
+                      new Set([
+                          ...childStub.allowedIdentifiers,
+                          ...options.allowedIdentifiers,
+                      ])
+                  );
         };
         const secondParentGender = mostExpensive.gender;
-
+    
         let firstParent: IPokemonBreederStub | null = null;
         let secondParent: IPokemonBreederStub | null = null;
-
+    
         if (childStub.nature) {
             if (statCount === 0) {
                 return EMPTY_PARENT_GROUP;
             }
-
-            // When targeting nature, we have to have a another pokemon with no nature, and all IVs.
-            // In case of "perfect" pokemon, that means a 6IV non-nature and 5IV natured.
-
+    
             firstParent = this.makeBreedingStub({
-                allowedIdentifiers: allowedIdentifiersForGender(
-                    firstParentGender,
-                ),
+                allowedIdentifiers: allowedIdentifiersForGender(firstParentGender),
                 forcedIdentifier: forcedIdentifierForGender(firstParentGender),
                 ivs: childStub.ivs,
                 gender: firstParentGender,
-                nature: null, // Gender is forced onto the second parnet.
+                nature: null,
                 generation: childStub.generation + 1,
             });
-
+    
             secondParent = this.makeBreedingStub({
-                allowedIdentifiers: allowedIdentifiersForGender(
-                    secondParentGender,
-                ),
+                allowedIdentifiers: allowedIdentifiersForGender(secondParentGender),
                 forcedIdentifier: forcedIdentifierForGender(secondParentGender),
                 ivs: subtractIVRequirement(childStub.ivs, firstParentStat),
                 gender: secondParentGender,
@@ -282,89 +274,76 @@ export class PokemonBuilder extends PokemonStoreAccessor {
             });
         } else {
             if (statCount <= 1) {
-                // Only 1 stat needed. Moving on.
                 return EMPTY_PARENT_GROUP;
             }
-
-            // We have no nature specified. As a result, both pokemon targetted will have 1 less pokemon than before.
-            // When targeting nature, we have to have a another pokemon with no nature, and all IVs.
-            // In case of "perfect" pokemon, that means a 6IV non-nature and 5IV natured.
-
-            const secondParentIVs = subtractIVRequirement(
-                childStub.ivs,
-                firstParentStat,
-            );
-            const secondParentStat = this.mostExpensiveStat(
-                secondParentIVs,
-                secondParentGender,
-            );
-
+    
+            const secondParentIVs = subtractIVRequirement(childStub.ivs, firstParentStat);
+            const secondParentStat = this.mostExpensiveStat(secondParentIVs, secondParentGender);
+    
             if (!secondParentStat) {
                 console.error(childStub);
-                throw new Error("Shouldn't happen");
+                throw new Error("Unexpected state: Unable to find second parent stat.");
             }
-            const firstParentIVs = subtractIVRequirement(
-                childStub.ivs,
-                secondParentStat,
-            );
-
+            const firstParentIVs = subtractIVRequirement(childStub.ivs, secondParentStat);
+    
             firstParent = this.makeBreedingStub({
-                allowedIdentifiers: allowedIdentifiersForGender(
-                    firstParentGender,
-                ),
+                allowedIdentifiers: allowedIdentifiersForGender(firstParentGender),
                 forcedIdentifier: forcedIdentifierForGender(firstParentGender),
                 ivs: firstParentIVs,
                 gender: firstParentGender,
-                nature: null, // No natures here.
+                nature: null,
                 generation: childStub.generation + 1,
             });
-
+    
             secondParent = this.makeBreedingStub({
-                allowedIdentifiers: allowedIdentifiersForGender(
-                    secondParentGender,
-                ),
+                allowedIdentifiers: allowedIdentifiersForGender(secondParentGender),
                 forcedIdentifier: forcedIdentifierForGender(secondParentGender),
                 ivs: secondParentIVs,
                 gender: secondParentGender,
-                nature: null, // No natures here.
+                nature: null,
                 generation: childStub.generation + 1,
             });
         }
-
-        // Recursively calculate parents and link them..
-        const firstAncestors = this.internalCalculateBreeders(
-            firstParent,
-            options,
-        );
+    
+        // Continue with recursive calculations and linking.
+        const firstAncestors = this.internalCalculateBreeders(firstParent, options);
         firstParent.childHash = childStub.stubHash;
-
-        const secondAncestors = this.internalCalculateBreeders(
-            secondParent,
-            options,
-        );
+    
+        const secondAncestors = this.internalCalculateBreeders(secondParent, options);
         secondParent.childHash = childStub.stubHash;
-
-        // Generate return values.
+    
         const parents = {
-            // As assignment need to satisfy enum constraint.
             [firstParentGender as Gender.MALE]: firstParent,
             [secondParentGender as Gender.FEMALE]: secondParent,
         };
-
+    
         childStub.parents = {
             [Gender.MALE]: parents.male.stubHash,
             [Gender.FEMALE]: parents.female.stubHash,
         };
-
+    
         const allParents = [
             firstParent,
             ...firstAncestors.allParents,
             secondParent,
             ...secondAncestors.allParents,
         ];
-
+    
         return { parents, allParents };
     }
+    
+    /**
+     * Determines whether breeding for a specific stat should be skipped.
+     * If the female already has a higher or equal stat, return true.
+     */
+    private shouldSkipBreeding(ivs: IVRequirements, stat: Stat, gender: Gender): boolean {
+        const femaleStat = ivs[stat];
+        if (femaleStat && gender === Gender.FEMALE && femaleStat.value >= ivs[stat].value) {
+            return true;
+        }
+        return false;
+    }
+    
 
     private makeBreedingStub(
         stub: Pick<
