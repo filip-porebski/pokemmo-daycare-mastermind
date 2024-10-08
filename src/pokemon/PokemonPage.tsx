@@ -188,7 +188,7 @@ function PokemonActionHeader(props: {
                         onClick={() => {
                             selectedPokemon.forEach(pokemon => {
                                 deletePokemon({
-                                    pokemon,
+                                    pokemonID: pokemon.id,
                                 });
                             });
                             setSelectedPokemon([]);
