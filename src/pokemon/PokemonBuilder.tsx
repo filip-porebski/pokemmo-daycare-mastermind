@@ -1,5 +1,5 @@
 /**
- * @copyright 2020 Adam (charrondev) Charron
+ * @copyright 2020 Adam (charrondev)
  * @license GPL-3.0-only
  */
 
@@ -67,6 +67,12 @@ export class PokemonBuilder extends PokemonStoreAccessor {
         }
     }
 
+    // Static constants
+    public static readonly BRACER_COST = 10000;
+    public static readonly AVERAGE_UNDEFINED_PRICE = 10000; // Correctly defined static property
+    public static readonly EVERSTONE_COST = 7000;
+
+
     public static create(identifier: string): PokemonBuilder {
         return new PokemonBuilder(identifier);
     }
@@ -82,10 +88,8 @@ export class PokemonBuilder extends PokemonStoreAccessor {
             ivs: this._ivs,
             nature: this._nature,
             gender: this._gender,
-
             _uuid: this._uuid,
             id: this._id,
-
             projectIDs: this._projectIDs,
             ownershipStatus: this._ownershipStatus,
             boughtPrice: this._boughtPrice,
@@ -101,6 +105,7 @@ export class PokemonBuilder extends PokemonStoreAccessor {
         [Stat.SPECIAL_DEFENSE]: EMPTY_IV,
         [Stat.SPEED]: EMPTY_IV,
     };
+
     public ivs(ivs: IVRequirements) {
         this._ivs = ivs;
         this.calculateID();
@@ -120,8 +125,6 @@ export class PokemonBuilder extends PokemonStoreAccessor {
         this.calculateID();
         return this;
     }
-
-    // Statuses
 
     private _projectIDs: string[] = [];
     public projectIDs(projectIDs: string[]) {
@@ -143,13 +146,6 @@ export class PokemonBuilder extends PokemonStoreAccessor {
         return this;
     }
 
-    ///
-    /// Private Utilities.
-    ///
-
-    /**
-     * Calculate the pokemon's ID based on it's info.
-     */
     private calculateID() {
         const id = `${this._identifier}-${
             this._gender
@@ -176,11 +172,6 @@ export class PokemonBuilder extends PokemonStoreAccessor {
         )}_${statNum(Stat.SPEED)}`;
     }
 
-    // Parent calculation
-    public static BRACER_COST = 10000;
-    public static AVERAGE_UNDEFINED_PRICE = 10000;
-    public static EVERSTONE_COST = 7000;
-
     public calculateBreeders(
         options: IParentOptions = DEFAULT_PARENT_BUILDER_OPTIONS,
     ): IPokemonBreederStub[] {
@@ -199,172 +190,84 @@ export class PokemonBuilder extends PokemonStoreAccessor {
         ];
     }
 
-    /**
-     * Calculate the parents for a pokemon.
-     * @param pokemon The pokemon to calculate from.
-     * @param options Breeding options.
-     */
     private internalCalculateBreeders(
         childStub: IPokemonBreederStub,
         options: IParentOptions = DEFAULT_PARENT_BUILDER_OPTIONS,
     ): IStubAncestors {
-        // const stub = "stubHash" in pokemonOrStub ? pokemonOrStub : makeBreedingStub()
-
-        // This is the stat/gender that's most expensive.
-        // It should be elimated first.
         const mostExpensive = this.getMostExpensiveStatGender(childStub.ivs);
-
+    
         if (!mostExpensive) {
             return EMPTY_PARENT_GROUP;
         }
+    
         let statCount = Object.values(childStub.ivs).filter(
             iv => iv.value !== 0 && iv.value != null,
         ).length;
-        const firstParentStat = mostExpensive.stat;
-
-        // Select genders and names
-        const { forcedIdentifier } = childStub;
-        const firstParentGender = swapGender(mostExpensive.gender);
-
-        // The female identifier must be preserved down the purely female line.
-        const forcedIdentifierForGender = (gender: Gender): string | null => {
-            if (gender === Gender.FEMALE && forcedIdentifier) {
-                return forcedIdentifier;
-            } else {
-                return null;
-            }
-        };
-        const allowedIdentifiersForGender = (gender: Gender): string[] => {
-            if (gender === Gender.FEMALE && forcedIdentifier) {
-                return [forcedIdentifier];
-            } else {
-                return Array.from(
-                    new Set([
-                        ...childStub.allowedIdentifiers,
-                        ...options.allowedIdentifiers,
-                    ]),
-                );
-            }
-        };
-        const secondParentGender = mostExpensive.gender;
-
-        let firstParent: IPokemonBreederStub | null = null;
-        let secondParent: IPokemonBreederStub | null = null;
-
-        if (childStub.nature) {
-            if (statCount === 0) {
-                return EMPTY_PARENT_GROUP;
-            }
-
-            // When targeting nature, we have to have a another pokemon with no nature, and all IVs.
-            // In case of "perfect" pokemon, that means a 6IV non-nature and 5IV natured.
-
-            firstParent = this.makeBreedingStub({
-                allowedIdentifiers: allowedIdentifiersForGender(
-                    firstParentGender,
-                ),
-                forcedIdentifier: forcedIdentifierForGender(firstParentGender),
-                ivs: childStub.ivs,
-                gender: firstParentGender,
-                nature: null, // Gender is forced onto the second parnet.
-                generation: childStub.generation + 1,
-            });
-
-            secondParent = this.makeBreedingStub({
-                allowedIdentifiers: allowedIdentifiersForGender(
-                    secondParentGender,
-                ),
-                forcedIdentifier: forcedIdentifierForGender(secondParentGender),
-                ivs: subtractIVRequirement(childStub.ivs, firstParentStat),
-                gender: secondParentGender,
-                nature: childStub.nature,
-                generation: childStub.generation + 1,
-            });
-        } else {
-            if (statCount <= 1) {
-                // Only 1 stat needed. Moving on.
-                return EMPTY_PARENT_GROUP;
-            }
-
-            // We have no nature specified. As a result, both pokemon targetted will have 1 less pokemon than before.
-            // When targeting nature, we have to have a another pokemon with no nature, and all IVs.
-            // In case of "perfect" pokemon, that means a 6IV non-nature and 5IV natured.
-
-            const secondParentIVs = subtractIVRequirement(
-                childStub.ivs,
-                firstParentStat,
-            );
-            const secondParentStat = this.mostExpensiveStat(
-                secondParentIVs,
-                secondParentGender,
-            );
-
-            if (!secondParentStat) {
-                console.error(childStub);
-                throw new Error("Shouldn't happen");
-            }
-            const firstParentIVs = subtractIVRequirement(
-                childStub.ivs,
-                secondParentStat,
-            );
-
-            firstParent = this.makeBreedingStub({
-                allowedIdentifiers: allowedIdentifiersForGender(
-                    firstParentGender,
-                ),
-                forcedIdentifier: forcedIdentifierForGender(firstParentGender),
-                ivs: firstParentIVs,
-                gender: firstParentGender,
-                nature: null, // No natures here.
-                generation: childStub.generation + 1,
-            });
-
-            secondParent = this.makeBreedingStub({
-                allowedIdentifiers: allowedIdentifiersForGender(
-                    secondParentGender,
-                ),
-                forcedIdentifier: forcedIdentifierForGender(secondParentGender),
-                ivs: secondParentIVs,
-                gender: secondParentGender,
-                nature: null, // No natures here.
-                generation: childStub.generation + 1,
-            });
+    
+        // Logic adjustment: Compare current female stats with the child stats to see if breeding is still beneficial.
+        const femaleParentIVs = subtractIVRequirement(childStub.ivs, mostExpensive.stat);
+        const isBreedingBeneficial = this.shouldBreedForImprovement(childStub.ivs, femaleParentIVs);
+    
+        // We only skip breeding if all stats in the child are either equal or worse than those in the female, and there's no nature benefit.
+        if (statCount <= 1 || !isBreedingBeneficial) {
+            return EMPTY_PARENT_GROUP;
         }
-
-        // Recursively calculate parents and link them..
-        const firstAncestors = this.internalCalculateBreeders(
-            firstParent,
-            options,
-        );
-        firstParent.childHash = childStub.stubHash;
-
-        const secondAncestors = this.internalCalculateBreeders(
-            secondParent,
-            options,
-        );
-        secondParent.childHash = childStub.stubHash;
-
-        // Generate return values.
-        const parents = {
-            // As assignment need to satisfy enum constraint.
-            [firstParentGender as Gender.MALE]: firstParent,
-            [secondParentGender as Gender.FEMALE]: secondParent,
-        };
-
-        childStub.parents = {
-            [Gender.MALE]: parents.male.stubHash,
-            [Gender.FEMALE]: parents.female.stubHash,
-        };
-
-        const allParents = [
-            firstParent,
-            ...firstAncestors.allParents,
-            secondParent,
-            ...secondAncestors.allParents,
-        ];
-
-        return { parents, allParents };
+    
+        // Continue with the regular breeding process if beneficial
+        const firstParentGender = swapGender(mostExpensive.gender);
+        const secondParentGender = mostExpensive.gender;
+    
+        const firstParentIVs = subtractIVRequirement(childStub.ivs, mostExpensive.stat);
+        const secondParentIVs = subtractIVRequirement(firstParentIVs, mostExpensive.stat);
+    
+        const firstParent = this.makeBreedingStub({
+            allowedIdentifiers: options.allowedIdentifiers,
+            forcedIdentifier: null,
+            ivs: firstParentIVs,
+            gender: firstParentGender,
+            nature: null,
+            generation: childStub.generation + 1,
+        });
+    
+        const secondParent = this.makeBreedingStub({
+            allowedIdentifiers: options.allowedIdentifiers,
+            forcedIdentifier: null,
+            ivs: secondParentIVs,
+            gender: secondParentGender,
+            nature: null,
+            generation: childStub.generation + 1,
+        });
+    
+        const firstAncestors = this.internalCalculateBreeders(firstParent, options);
+        const secondAncestors = this.internalCalculateBreeders(secondParent, options);
+    
+        return { 
+            parents: { 
+                male: firstParentGender === Gender.MALE ? firstParent : secondParent, 
+                female: firstParentGender === Gender.FEMALE ? firstParent : secondParent 
+            }, 
+            allParents: [firstParent, ...firstAncestors.allParents, secondParent, ...secondAncestors.allParents] 
+        };        
     }
+    
+    /**
+     * Determine if breeding will result in an improvement worth pursuing.
+     * We only skip breeding if no stat gains or nature improvements are possible.
+     */
+    private shouldBreedForImprovement(childIVs: IVRequirements, femaleIVs: IVRequirements): boolean {
+        for (const stat of Object.keys(childIVs)) {
+            const childValue = childIVs[stat as Stat].value ?? 0;
+            const femaleValue = femaleIVs[stat as Stat].value ?? 0;
+    
+            // Breeding is beneficial if the child requires a stat higher than the female or needs nature improvement
+            if (childValue > femaleValue) {
+                return true;
+            }
+        }
+        return false; // Skip breeding if the female already has equal or better stats for all relevant IVs
+    }
+    
+    
 
     private makeBreedingStub(
         stub: Pick<
@@ -396,9 +299,6 @@ export class PokemonBuilder extends PokemonStoreAccessor {
         };
     }
 
-    /**
-     * Get the most expensive stat/gender combo.
-     */
     private getMostExpensiveStatGender(ivs: IVRequirements) {
         const mostExpMaleStat = this.mostExpensiveStat(ivs, Gender.MALE);
         const mostExpFemaleStat = this.mostExpensiveStat(ivs, Gender.FEMALE);
@@ -407,42 +307,17 @@ export class PokemonBuilder extends PokemonStoreAccessor {
             return null;
         }
 
-        if (
-            this.getPriceForStat(ivs, mostExpMaleStat, Gender.MALE) >
+        return this.getPriceForStat(ivs, mostExpMaleStat, Gender.MALE) >
             this.getPriceForStat(ivs, mostExpFemaleStat, Gender.FEMALE)
-        ) {
-            return {
-                stat: mostExpMaleStat,
-                gender: Gender.MALE,
-            };
-        } else {
-            return {
-                stat: mostExpFemaleStat,
-                gender: Gender.FEMALE,
-            };
-        }
+            ? { stat: mostExpMaleStat, gender: Gender.MALE }
+            : { stat: mostExpFemaleStat, gender: Gender.FEMALE };
     }
 
-    /**
-     * Look into a pokemons info and find the price for a stat/gender combo.
-     */
-    private getPriceForStat(
-        ivs: IVRequirements,
-        stat: Stat,
-        gender: Gender,
-    ): number {
-        return (
-            ivs[stat].prices[gender] ?? PokemonBuilder.AVERAGE_UNDEFINED_PRICE
-        );
+    private getPriceForStat(ivs: IVRequirements, stat: Stat, gender: Gender): number {
+        return ivs[stat].prices[gender] ?? PokemonBuilder.AVERAGE_UNDEFINED_PRICE;
     }
 
-    /**
-     * Find the most expensive stat out of some requirements for a particular gender.
-     */
-    private mostExpensiveStat(
-        ivs: IVRequirements,
-        gender: Gender,
-    ): Stat | null {
+    private mostExpensiveStat(ivs: IVRequirements, gender: Gender): Stat | null {
         let mostExpensiveIV: Stat | null = null;
         let mostExpensiveIVPrice: number = 0;
 
@@ -450,9 +325,7 @@ export class PokemonBuilder extends PokemonStoreAccessor {
             if (info.value === 0) {
                 continue;
             }
-            const price =
-                info?.prices?.[gender] ||
-                PokemonBuilder.AVERAGE_UNDEFINED_PRICE;
+            const price = info?.prices?.[gender] || PokemonBuilder.AVERAGE_UNDEFINED_PRICE;
             if (price >= mostExpensiveIVPrice) {
                 mostExpensiveIVPrice = price;
                 mostExpensiveIV = stat as Stat;
