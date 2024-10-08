@@ -14,7 +14,8 @@ import { Nature } from "@pokemmo/pokemon/PokemonTypes";
 import { NatureView } from "@pokemmo/projects/NatureView";
 import { notEmpty } from "@pokemmo/utils";
 import React from "react";
-import { FormatOptionLabelMeta, OptionTypeBase } from "react-select";
+import { OptionTypeBase, FormatOptionLabelMeta } from "react-select";
+
 
 export interface NatureSelectOptionType extends OptionTypeBase {
     nature: Nature;
@@ -78,7 +79,7 @@ export function NatureSelect(_props: IProps) {
 }
 const formatNatureLabel = (
     option: OptionTypeBase,
-    meta: FormatOptionLabelMeta<any>,
+    meta: FormatOptionLabelMeta<OptionTypeBase, boolean>,
 ) => {
     if (meta.context === "menu") {
         return <NatureView nature={option.value} />;
