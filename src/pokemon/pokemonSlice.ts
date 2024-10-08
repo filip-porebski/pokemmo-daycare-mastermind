@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IPokemon } from "@pokemmo/pokemon/PokemonTypes";
+import { IPokemon, BreedStatus } from "@pokemmo/pokemon/PokemonTypes";
 
 export type PokemonByID = Record<string, IPokemon>;
 
@@ -35,8 +35,20 @@ export const pokemonSlice = createSlice({
             const { pokemonID } = action.payload;
             delete state.pokemonByID[pokemonID];
         },
+        setBreedStatus: (
+            state,
+            action: PayloadAction<{ pokemonID: string; status: BreedStatus }>
+        ) => {
+            const { pokemonID, status } = action.payload;
+            const pokemon = state.pokemonByID[pokemonID];
+            if (pokemon) {
+                pokemon.breedStatus = status;
+            } else {
+                console.error("Failed to set breed status. Pokémon ID not found:", pokemonID);
+            }
+        },
     },
 });
 
-export const { addPokemon, updatePokemonInStore, deletePokemon } = pokemonSlice.actions;
+export const { addPokemon, updatePokemonInStore, deletePokemon, setBreedStatus } = pokemonSlice.actions;
 export default pokemonSlice.reducer;
