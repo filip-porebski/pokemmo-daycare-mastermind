@@ -26,4 +26,4 @@ You can view the website online here: http://pokemmo-daycare-mastermind.vercel.a
 ## **Acknowledgments**
 
 -   Inspired by the PokeMMO community.
--   Adam (charrondev) Charron - this is all based on his initial code on GPL-3.0-only licence
+-   Adam (charrondev) Charron - this is based on his initial code on GPL-3.0-only licence and updated
