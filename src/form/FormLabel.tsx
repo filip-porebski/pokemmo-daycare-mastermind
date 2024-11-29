@@ -1,6 +1,7 @@
 /**
- * @copyright 2020 Adam (charrondev) Charron Changes 2024 onwards filip-porebski
- * @license Proprietary - All Rights Reserved
+ * @copyright 2020 Adam (charrondev) Charron
+Changes 2024 onwards filip-porebski
+ * @license GPL-3.0-only
  */
 
 import { fontSizeSmall } from "@pokemmo/styles/variables";
