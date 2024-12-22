@@ -87,7 +87,7 @@
         "terser-webpack-plugin": "2.3.5",
         "ts-pnp": "1.1.6",
         "url-loader": "3.0.0",
-        "webpack-dev-server": "3.10.3",
+        "webpack-dev-server": "5.2.0",
         "webpack-manifest-plugin": "2.2.0",
         "workbox-webpack-plugin": "7.3.0",
         "yup": "^0.28.1"
@@ -117,7 +117,7 @@
     },
     "devDependencies": {
         "@emotion/babel-preset-css-prop": "^10.0.27",
-        "@pmmmwh/react-refresh-webpack-plugin": "^0.3.3",
+        "@pmmmwh/react-refresh-webpack-plugin": "^0.5.15",
         "@testing-library/dom": "^6.12.2",
         "@types/color": "^3.0.1",
         "@types/lodash-es": "^4.17.3",
