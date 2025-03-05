@@ -37,6 +37,18 @@ import { numberWithCommas, uppercaseFirst } from "@pokemmo/utils";
 import { sample } from "lodash-es";
 import React, { useDebugValue } from "react";
 
+// Import item icons
+const itemIcons: Record<string, string> = {
+    Everstone: require("@pokemmo/img/Everstone.png"),
+    "Power Anklet": require("@pokemmo/img/Power_Anklet.png"),
+    "Power Band": require("@pokemmo/img/Power_Band.png"),
+    "Power Belt": require("@pokemmo/img/Power_Belt.png"),
+    "Power Bracer": require("@pokemmo/img/Power_Bracer.png"),
+    "Power Lens": require("@pokemmo/img/Power_Lens.png"),
+    "Power Weight": require("@pokemmo/img/Power_Weight.png"),
+    "Ability Pill": require("@pokemmo/img/Ability_Pill.png"),
+};
+
 interface IProps {
     projectID: string;
 }
@@ -93,7 +105,7 @@ export function BreedingGuide(props: IProps) {
         <div>
             <FormHeading
                 title="Breeding Guide"
-                description="Get an estimation of the order to breed the pokemon that minimizes cost. Track your progress so you don’t repeat steps."
+                description="Get an estimation of the order to breed the pokemon that minimizes cost. Track your progress so you don't repeat steps."
             />
             {eggPairs.length > 0 && (
                 <>
@@ -372,7 +384,20 @@ function BreederPart(props: {
                         vertical
                         css={!canBreed && { opacity: 0.5 }}
                     >
-                        {props.heldItem ?? "N/A"}
+                        <div css={{ display: "flex", alignItems: "center" }}>
+                            {props.heldItem && itemIcons[props.heldItem] && (
+                                <img
+                                    src={itemIcons[props.heldItem]}
+                                    alt={props.heldItem}
+                                    css={{
+                                        width: 45,
+                                        height: 45,
+                                        marginRight: 8,
+                                    }}
+                                />
+                            )}
+                            {props.heldItem ?? "N/A"}
+                        </div>
                     </LabelAndValue>
                     <LabelAndValue
                         label="Ownership"
