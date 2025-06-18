@@ -7,6 +7,7 @@
 import { Breadcrumbs } from "@pokemmo/layout/Breadcrumbs";
 import { BreedingGuide } from "@pokemmo/projects/BreedingGuide";
 import { BreedingShoppingList } from "@pokemmo/projects/BreedingShoppingList";
+import { BreedingHeldItemList } from "@pokemmo/projects/BreedingHeldItemList";
 import { useProject, useProjectPokemon } from "@pokemmo/projects/projectHooks";
 import React from "react";
 import { useParams } from "react-router-dom";
@@ -40,6 +41,7 @@ export function BreedingView(props: IProps) {
                 ]}
             />
             <BreedingShoppingList project={project} />
+            <BreedingHeldItemList projectID={project.projectID} />
             <BreedingGuide projectID={project.projectID} />
         </div>
     );
