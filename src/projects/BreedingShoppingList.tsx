@@ -11,6 +11,7 @@ import { GridLayout, GridSection } from "@pokemmo/layout/GridLayout";
 import { Separator } from "@pokemmo/layout/Separator";
 import { PokemonMeta } from "@pokemmo/pokemon/PokemonMeta";
 import { IPokemonBreederStub, Stat } from "@pokemmo/pokemon/PokemonTypes";
+import { usePokemon } from "@pokemmo/pokemon/pokemonHooks";
 import { BreedingAttachButton } from "@pokemmo/projects/BreedingAttachButton";
 import { colorForStat } from "@pokemmo/projects/IVView";
 import { useProject } from "@pokemmo/projects/projectHooks";
@@ -101,6 +102,10 @@ function ShoppingListStubItem(props: {
     const { projectID } = props;
     const { stubs } = props;
     const first = stubs[0];
+    // Get the project outside the callback
+    const project = useProject(projectID);
+    // Get the target Pokémon from the project
+    const targetPokemon = usePokemon(project?.targetPokemonID || null);
 
     if (!first) {
         // Shouldn't happen.
@@ -111,6 +116,33 @@ function ShoppingListStubItem(props: {
     for (const [stat, firstStatInfo] of Object.entries(first.ivs)) {
         if (firstStatInfo.value) {
             firstStat = stat as Stat;
+        }
+    }
+    
+    // Format the allowed breeders text
+    let allowedBreedersText = "";
+    if (project && targetPokemon) {
+        const targetIdentifier = targetPokemon.identifier;
+        const dexMon = getPokemon(targetIdentifier);
+        
+        if (dexMon) {
+            // Check if this stub allows the target Pokémon
+            const allowsTarget = first.allowedIdentifiers.includes(targetIdentifier);
+            
+            // Check if alternative breeders are allowed (more than just the target)
+            const hasAlternatives = first.allowedIdentifiers.length > 1 || 
+                (first.allowedIdentifiers.length === 1 && !allowsTarget);
+            
+            // Format the display text
+            if (allowsTarget && hasAlternatives) {
+                allowedBreedersText = `${dexMon.displayName}, Alternative Breeders`;
+            } else if (allowsTarget) {
+                allowedBreedersText = dexMon.displayName;
+            } else if (hasAlternatives) {
+                allowedBreedersText = "Alternative Breeders";
+            } else {
+                allowedBreedersText = "None";
+            }
         }
     }
 
@@ -144,10 +176,7 @@ function ShoppingListStubItem(props: {
                     gender={first.gender}
                 />
                 <LabelAndValue label="Allowed Breeders">
-                    {first.allowedIdentifiers
-                        .map(identifier => getPokemon(identifier)?.displayName)
-                        .filter(notEmpty)
-                        .join(", ")}
+                    {allowedBreedersText}
                 </LabelAndValue>
             </div>
             <div css={{ display: "flex", alignItems: "center" }}>

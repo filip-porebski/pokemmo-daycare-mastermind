@@ -19,8 +19,9 @@ import { IProject } from "@pokemmo/projects/projectsSlice";
 import { DecoratedCard } from "@pokemmo/styles/Card";
 import { colorPrimary } from "@pokemmo/styles/variables";
 import { notEmpty } from "@pokemmo/utils";
-import React from "react";
+import React, { useMemo } from "react";
 import IconClear from "../icons/IconClear.svg";
+import IconAdd from "../icons/IconAdd.svg";
 
 export function ProjectAlternativeBreederForm(props: { project: IProject }) {
     const { project } = props;
@@ -33,6 +34,44 @@ export function ProjectAlternativeBreederForm(props: { project: IProject }) {
     } = useProjectActions();
 
     const pokemon = usePokemon(project.targetPokemonID);
+    
+    // Get all potential alternative breeders based on egg groups
+    const allPotentialAlternatives = useMemo(() => {
+        if (!pokemon) return [];
+        
+        const dexMon = getPokemon(pokemon.identifier);
+        if (!dexMon) return [];
+        
+        const targetEggGroups = [dexMon.eggGroup1, dexMon.eggGroup2].filter(notEmpty);
+        // Import pokemon.csv directly
+        const allPokemon: PokedexMon[] = require("@pokemmo/data/pokemon.csv");
+        const alternatives = new Set<string>();
+        
+        // Find all Pokémon that share at least one egg group with the target
+        allPokemon.forEach((mon: PokedexMon) => {
+            // Skip if it's the same as the target
+            if (mon.identifier === pokemon.identifier) return;
+            
+            // Skip if it's already in the alternatives list
+            if (project.altBreederIdentifiers.includes(mon.identifier)) return;
+            
+            // Check if it shares an egg group with the target
+            const monEggGroups = [mon.eggGroup1, mon.eggGroup2].filter(notEmpty);
+            const sharesEggGroup = monEggGroups.some(group => targetEggGroups.includes(group));
+            
+            if (sharesEggGroup) {
+                // If we don't allow evolved Pokémon, check if it's a base form
+                if (!project.allowEvolvedAltBreeders && mon.evolvesFromSpeciesID > 0) {
+                    return;
+                }
+                
+                alternatives.add(mon.identifier);
+            }
+        });
+        
+        return Array.from(alternatives);
+    }, [pokemon, project.altBreederIdentifiers, project.allowEvolvedAltBreeders]);
+    
     if (!pokemon) {
         return null;
     }
@@ -97,15 +136,37 @@ export function ProjectAlternativeBreederForm(props: { project: IProject }) {
                         />
                     </FormLabel>
                 </div>
-                <FormButton
-                    css={{ marginBottom: 6, flex: "0 1 auto" }}
-                    onClick={() => {
-                        clearAlternatives({ projectID });
-                    }}
-                    disabled={project.altBreederIdentifiers.length === 0}
-                >
-                    Clear Alternatives
-                </FormButton>
+                <div css={{ display: "flex", gap: 12 }}>
+                    <FormButton
+                        css={{ marginBottom: 6, flex: "0 1 auto" }}
+                        onClick={() => {
+                            // Add all potential alternatives
+                            allPotentialAlternatives.forEach(alternativeIdentifier => {
+                                addAlternative({
+                                    projectID,
+                                    alternativeIdentifier,
+                                });
+                            });
+                        }}
+                        disabled={allPotentialAlternatives.length === 0}
+                        title="Add all compatible Pokémon as alternatives"
+                    >
+                        <span css={{ display: "flex", alignItems: "center" }}>
+                            <IconAdd css={{ height: 14, width: 14, marginRight: 6 }} />
+                            Add All Alternatives
+                        </span>
+                    </FormButton>
+                    
+                    <FormButton
+                        css={{ marginBottom: 6, flex: "0 1 auto" }}
+                        onClick={() => {
+                            clearAlternatives({ projectID });
+                        }}
+                        disabled={project.altBreederIdentifiers.length === 0}
+                    >
+                        Clear Alternatives
+                    </FormButton>
+                </div>
             </FormRow>
             {project.altBreederIdentifiers.length > 0 && (
                 <FormGrid
