@@ -38,15 +38,24 @@ import { sample } from "lodash-es";
 import React, { useDebugValue } from "react";
 
 // Import item icons
+import AbilityPillIcon from "@pokemmo/img/Ability_Pill.png";
+import EverstoneIcon from "@pokemmo/img/Everstone.png";
+import PowerAnkletIcon from "@pokemmo/img/Power_Anklet.png";
+import PowerBandIcon from "@pokemmo/img/Power_Band.png";
+import PowerBeltIcon from "@pokemmo/img/Power_Belt.png";
+import PowerBracerIcon from "@pokemmo/img/Power_Bracer.png";
+import PowerLensIcon from "@pokemmo/img/Power_Lens.png";
+import PowerWeightIcon from "@pokemmo/img/Power_Weight.png";
+
 const itemIcons: Record<string, string> = {
-    Everstone: require("@pokemmo/img/Everstone.png"),
-    "Power Anklet": require("@pokemmo/img/Power_Anklet.png"),
-    "Power Band": require("@pokemmo/img/Power_Band.png"),
-    "Power Belt": require("@pokemmo/img/Power_Belt.png"),
-    "Power Bracer": require("@pokemmo/img/Power_Bracer.png"),
-    "Power Lens": require("@pokemmo/img/Power_Lens.png"),
-    "Power Weight": require("@pokemmo/img/Power_Weight.png"),
-    "Ability Pill": require("@pokemmo/img/Ability_Pill.png"),
+    Everstone: EverstoneIcon,
+    "Power Anklet": PowerAnkletIcon,
+    "Power Band": PowerBandIcon,
+    "Power Belt": PowerBeltIcon,
+    "Power Bracer": PowerBracerIcon,
+    "Power Lens": PowerLensIcon,
+    "Power Weight": PowerWeightIcon,
+    "Ability Pill": AbilityPillIcon,
 };
 
 interface IProps {
