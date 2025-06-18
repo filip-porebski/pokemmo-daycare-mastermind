@@ -15,10 +15,13 @@ import {
 } from "@pokemmo/pokemon/PokemonForm";
 import {
     IPokemonBreederStub,
+    IPokemon,
     IVRequirements,
     Stat,
 } from "@pokemmo/pokemon/PokemonTypes";
 import { useStubActions } from "@pokemmo/projects/stubSlice";
+import { useProject } from "@pokemmo/projects/projectHooks";
+import { pokemonMatchesStub } from "@pokemmo/projects/breedingUtils";
 import { MenuItem } from "@reach/menu-button";
 import React, { useMemo, useState } from "react";
 
@@ -30,6 +33,7 @@ export function BreedingAttachButton(props: {
 }) {
     const { stub, projectID, buttonType = ButtonType.TEXT } = props;
     const { attachPokemonToStub, detachPokemonFromStub } = useStubActions();
+    const project = useProject(projectID);
     const [
         newPokemonRequirements,
         setNewPokemonRequirements,
@@ -52,6 +56,36 @@ export function BreedingAttachButton(props: {
         });
         return Array.from(result);
     }, [stub]);
+
+    const autoAttach = (pokemon: IPokemon) => {
+        attachPokemonToStub({
+            projectID,
+            pokemonID: pokemon.id,
+            stubHash: stub.stubHash,
+            stubID: stub.stubID,
+        });
+
+        if (!project) {
+            return;
+        }
+
+        Object.values(project.breederStubs)
+            .flat()
+            .forEach(other => {
+                if (
+                    !other.attachedPokemonID &&
+                    other.stubID !== stub.stubID &&
+                    pokemonMatchesStub(pokemon, other)
+                ) {
+                    attachPokemonToStub({
+                        projectID,
+                        pokemonID: pokemon.id,
+                        stubHash: other.stubHash,
+                        stubID: other.stubID,
+                    });
+                }
+            });
+    };
 
     if (stub.attachedPokemonID) {
         return (
@@ -129,11 +163,7 @@ export function BreedingAttachButton(props: {
                         setExistingPokemonFilters(null);
                     }}
                     onSelect={pokemon => {
-                        attachPokemonToStub({
-                            projectID,
-                            pokemonID: pokemon.id,
-                            stubHash: stub.stubHash,
-                        });
+                        autoAttach(pokemon);
                     }}
                 />
             )}
@@ -144,11 +174,7 @@ export function BreedingAttachButton(props: {
                         setNewPokemonRequirements(null);
                     }}
                     afterSubmit={pokemon => {
-                        attachPokemonToStub({
-                            projectID,
-                            pokemonID: pokemon.id,
-                            stubHash: stub.stubHash,
-                        });
+                        autoAttach(pokemon);
                     }}
                 />
             )}
