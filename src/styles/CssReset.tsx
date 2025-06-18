@@ -33,6 +33,11 @@ export function CssReset() {
                     color: ${colorText.string()};
                     box-sizing: border-box;
                 }
+
+                body.dark {
+                    background: #1e1e1e;
+                    color: #f4f4f4;
+                }
                 *,
                 *:before,
                 *:after {
