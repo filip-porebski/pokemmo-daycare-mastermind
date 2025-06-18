@@ -8,6 +8,7 @@ import { getPokemon, PokedexMon } from "@pokemmo/data/pokedex";
 import { ButtonType, FormButton } from "@pokemmo/form/FormButton";
 import { FormCheckBox } from "@pokemmo/form/FormCheckBox";
 import { FormHeading } from "@pokemmo/form/FormHeading";
+import { FormInput } from "@pokemmo/form/FormInput";
 import { FormLabel } from "@pokemmo/form/FormLabel";
 import { FormGrid, FormRow } from "@pokemmo/form/FormRow";
 import { LabelAndValue } from "@pokemmo/form/LabelAndValue";
@@ -19,7 +20,7 @@ import { IProject } from "@pokemmo/projects/projectsSlice";
 import { DecoratedCard } from "@pokemmo/styles/Card";
 import { colorPrimary } from "@pokemmo/styles/variables";
 import { notEmpty } from "@pokemmo/utils";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import IconClear from "../icons/IconClear.svg";
 import IconAdd from "../icons/IconAdd.svg";
 
@@ -33,6 +34,10 @@ export function ProjectAlternativeBreederForm(props: { project: IProject }) {
         clearAlternatives,
     } = useProjectActions();
 
+    // State for search filter and display limit
+    const [searchFilter, setSearchFilter] = useState("");
+    const [displayLimit, setDisplayLimit] = useState(12); // Show 12 alternatives initially
+    
     const pokemon = usePokemon(project.targetPokemonID);
     
     // Get all potential alternative breeders based on egg groups
@@ -169,38 +174,82 @@ export function ProjectAlternativeBreederForm(props: { project: IProject }) {
                 </div>
             </FormRow>
             {project.altBreederIdentifiers.length > 0 && (
-                <FormGrid
-                    itemStyles={
-                        {
-                            // minWidth: 250,
-                            // maxWidth: 350,
-                            // flex: 1,
-                            // flexGrow: 1,
-                        }
-                    }
-                >
-                    {project.altBreederIdentifiers.map(
-                        (alternativeIdentifier, i) => {
-                            const dexMon = getPokemon(alternativeIdentifier);
-                            if (!dexMon) {
-                                return <React.Fragment key={i} />;
-                            }
+                <>
+                    <FormRow>
+                        <FormInput
+                            placeholder="Search alternatives..."
+                            value={searchFilter}
+                            onChange={(value) => {
+                                setSearchFilter(value);
+                                // Reset display limit when searching
+                                if (value) {
+                                    setDisplayLimit(12);
+                                }
+                            }}
+                            css={{ marginBottom: 12 }}
+                        />
+                    </FormRow>
+                    
+                    {(() => {
+                        // Filter alternatives once to avoid repeating the filtering logic
+                        const filteredAlternatives = project.altBreederIdentifiers
+                            .filter(alternativeIdentifier => {
+                                if (!searchFilter) return true;
+                                const dexMon = getPokemon(alternativeIdentifier);
+                                if (!dexMon) return false;
+                                return dexMon.displayName.toLowerCase().includes(searchFilter.toLowerCase());
+                            });
+                        
+                        // Get the alternatives to display (limited by displayLimit)
+                        const displayedAlternatives = filteredAlternatives.slice(0, displayLimit);
+                        
+                        // Calculate remaining alternatives
+                        const remainingCount = filteredAlternatives.length - displayLimit;
+                        
+                        return (
+                            <>
+                                <FormGrid
+                                    itemStyles={{}}
+                                >
+                                    {displayedAlternatives.map((alternativeIdentifier, i) => {
+                                        const dexMon = getPokemon(alternativeIdentifier);
+                                        if (!dexMon) {
+                                            return <React.Fragment key={i} />;
+                                        }
 
-                            return (
-                                <AltBreederCard
-                                    dexMon={dexMon}
-                                    key={i}
-                                    onDelete={() => {
-                                        removeAlternative({
-                                            projectID,
-                                            alternativeIdentifier,
-                                        });
-                                    }}
-                                />
-                            );
-                        },
-                    )}
-                </FormGrid>
+                                        return (
+                                            <AltBreederCard
+                                                dexMon={dexMon}
+                                                key={i}
+                                                onDelete={() => {
+                                                    removeAlternative({
+                                                        projectID,
+                                                        alternativeIdentifier,
+                                                    });
+                                                }}
+                                            />
+                                        );
+                                    })}
+                                </FormGrid>
+                                
+                                {/* Show more button if there are more alternatives to display */}
+                                {remainingCount > 0 && (
+                                    <FormButton
+                                        css={{ margin: "12px auto", display: "block" }}
+                                        onClick={() => setDisplayLimit(prev => prev + 12)}
+                                    >
+                                        Show More ({remainingCount} remaining)
+                                    </FormButton>
+                                )}
+                                
+                                {/* Show count of displayed alternatives */}
+                                <div css={{ textAlign: "center", marginTop: 12, color: "#666" }}>
+                                    Showing {displayedAlternatives.length} of {filteredAlternatives.length} alternative breeders
+                                </div>
+                            </>
+                        );
+                    })()}
+                </>
             )}
         </>
     );
