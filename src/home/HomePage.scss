@@ -1,0 +1,146 @@
+/**
+ * HomePage styles
+ */
+
+.home-hero {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+  border-radius: 12px;
+  padding: 60px 40px;
+  margin-bottom: 60px;
+  box-shadow: 0 10px 30px rgba(74, 79, 115, 0.08);
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+    animation: pulse 15s ease-in-out infinite;
+    z-index: 0;
+  }
+  
+  & > div {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.3;
+  }
+}
+
+.home-section {
+  margin-bottom: 60px;
+}
+
+.home-section-title {
+  position: relative;
+  padding-bottom: 16px;
+  margin-bottom: 32px;
+  text-align: center;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #4A4F73 0%, #B07B7B 100%);
+    border-radius: 3px;
+  }
+}
+
+.feature-card {
+  height: 100%;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(222, 224, 230, 0.5);
+  background: linear-gradient(135deg, #f9faff 0%, #f8f9fd 100%);
+  
+  &:hover {
+    border-color: rgba(74, 79, 115, 0.15);
+    background: linear-gradient(135deg, #f9faff 0%, #f2f4fa 100%);
+  }
+  
+  .feature-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(74, 79, 115, 0.1) 0%, rgba(74, 79, 115, 0.15) 100%);
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
+    
+    svg {
+      transition: all 0.3s ease;
+    }
+  }
+}
+
+.stats-card {
+  height: 100%;
+  border: 1px solid rgba(222, 224, 230, 0.5);
+  background: linear-gradient(135deg, #f9faff 0%, #f8f9fd 100%);
+  transition: all 0.3s ease;
+  
+  .stats-value {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    background: linear-gradient(90deg, #4A4F73 0%, #B07B7B 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: all 0.3s ease;
+  }
+  
+  &:hover {
+    border-color: rgba(74, 79, 115, 0.15);
+    background: linear-gradient(135deg, #f9faff 0%, #f2f4fa 100%);
+  }
+}
+
+.getting-started-card {
+  background: linear-gradient(135deg, #f9faff 0%, #f0f2f8 100%);
+  border: 1px solid rgba(222, 224, 230, 0.5);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    border-color: rgba(74, 79, 115, 0.15);
+    background: linear-gradient(135deg, #f9faff 0%, #f2f4fa 100%);
+    
+    div[css] > div:first-child {
+      background: linear-gradient(135deg, rgba(74, 79, 115, 0.1) 0%, rgba(176, 123, 123, 0.1) 100%);
+    }
+  }
+}
+
+.button-group {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .home-hero {
+    padding: 40px 20px;
+  }
+}

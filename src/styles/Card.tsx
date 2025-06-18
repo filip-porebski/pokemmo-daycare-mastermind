@@ -21,9 +21,11 @@ export const Card = StyledFactory(
     {
         background: "#fff",
         color: colorText.string(),
-        boxShadow: boxShadowCard,
-        padding: 16,
-        borderRadius: borderRadius,
+        boxShadow: "0 8px 30px rgba(0, 0, 0, 0.06)",
+        padding: 24,
+        borderRadius: 12,
+        transition: "all 0.3s ease",
+        border: "1px solid transparent",
     },
     "Card",
 );
@@ -47,25 +49,29 @@ export function DecoratedCard(
             css={[
                 {
                     position: "relative",
-                    paddingLeft: 16 + 6,
+                    paddingLeft: 24 + 6,
                     "&::before": {
                         content: "''",
                         display: "block",
                         position: "absolute",
-                        top: 0,
-                        left: 0,
-                        bottom: 0,
+                        top: -1,
+                        left: -1,
+                        bottom: -1,
                         width: 6,
-                        background: decorationColor.string(),
-                        borderTopLeftRadius: borderRadius,
-                        borderBottomLeftRadius: borderRadius,
+                        background: `linear-gradient(to bottom, ${decorationColor.string()}, ${decorationColor.lighten(0.2).string()})`,
+                        borderTopLeftRadius: 12,
+                        borderBottomLeftRadius: 12,
                     },
                 },
                 hoverable && {
-                    transition: "all 0.2s ease",
+                    transition: "all 0.3s ease",
                     cursor: "pointer",
+                    background: "linear-gradient(135deg, #f9faff 0%, #f8f9fd 100%)",
+                    border: "1px solid rgba(222, 224, 230, 0.5)",
                     "&:hover, &:focus, &:active": {
-                        boxShadow: "0 8px 40px 0 rgba(0, 0, 0, 0.15)",
+                        boxShadow: "0 8px 30px 0 rgba(0, 0, 0, 0.08)",
+                        borderColor: `rgba(74, 79, 115, 0.15)`,
+                        background: "linear-gradient(135deg, #f9faff 0%, #f2f4fa 100%)",
                     },
                 },
             ]}

@@ -32,6 +32,10 @@ export function CssReset() {
                     background: ${colorBG.string()};
                     color: ${colorText.string()};
                     box-sizing: border-box;
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+                    -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                    line-height: 1.6;
                 }
                 *,
                 *:before,
@@ -62,6 +66,8 @@ export function CssReset() {
                 a {
                     color: ${colorPrimary.toString()};
                     text-decoration: none;
+                    font-weight: 500;
+                    transition: all 0.2s ease;
                 }
 
                 a:hover,
@@ -69,6 +75,7 @@ export function CssReset() {
                 a:active {
                     text-decoration: underline;
                     box-shadow: none;
+                    color: ${colorPrimary.darken(0.2).toString()};
                 }
 
                 h1,
@@ -79,13 +86,24 @@ export function CssReset() {
                 h6 {
                     display: block;
                     line-height: 1.25;
-                    font-weight: bold;
+                    font-weight: 700;
                     margin-top: 0;
                     margin-bottom: 16px;
+                    letter-spacing: -0.5px;
                 }
 
                 p {
                     margin-bottom: 16px;
+                    line-height: 1.7;
+                }
+                
+                button, input, select, textarea {
+                    font-family: inherit;
+                }
+                
+                img {
+                    max-width: 100%;
+                    height: auto;
                 }
 
                 h1 {
