@@ -127,7 +127,9 @@ export function PokemonForm(_props: IProps) {
     const dexMon = getPokemon(form.values.pokemon);
 
     let forceGender: Gender | undefined;
-    if (dexMon?.percentageMale === 100) {
+    if (dexMon?.eggGroup1 === "Genderless") {
+        forceGender = Gender.MALE;
+    } else if (dexMon?.percentageMale === 100) {
         forceGender = Gender.MALE;
     } else if (dexMon?.percentageMale === 0) {
         forceGender = Gender.FEMALE;
