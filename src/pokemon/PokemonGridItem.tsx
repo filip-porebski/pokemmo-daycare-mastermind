@@ -13,10 +13,11 @@ import {
     IPokemon,
     OwnershipStatus,
 } from "@pokemmo/pokemon/PokemonTypes";
+import { GenderView } from "@pokemmo/projects/GenderView";
 import { IVView } from "@pokemmo/projects/IVView";
 import { DecoratedCard } from "@pokemmo/styles/Card";
 import { colorPrimary } from "@pokemmo/styles/variables";
-import { numberWithCommas, uppercaseFirst } from "@pokemmo/utils";
+import { numberWithCommas } from "@pokemmo/utils";
 import React from "react";
 
 interface IProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -83,8 +84,7 @@ export function PokemonGridItem(_props: IProps) {
                     </LabelAndValue>
                 )}
                 <LabelAndValue label="Gender" css={standardGridLabelStyle}>
-                    {uppercaseFirst(pokemon.gender)}
-                    {pokemon.gender === Gender.MALE ? "♂" : "♀"}
+                    <GenderView gender={pokemon.gender} />
                 </LabelAndValue>
                 {pokemon.ownershipStatus === OwnershipStatus.BOUGHT && (
                     <LabelAndValue css={standardGridLabelStyle} label="Bought">

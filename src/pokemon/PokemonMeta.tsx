@@ -6,9 +6,9 @@
 
 import { LabelAndValue } from "@pokemmo/form/LabelAndValue";
 import { Gender, IVRequirements } from "@pokemmo/pokemon/PokemonTypes";
+import { GenderView } from "@pokemmo/projects/GenderView";
 import { IVView } from "@pokemmo/projects/IVView";
 import { NatureView } from "@pokemmo/projects/NatureView";
-import { uppercaseFirst } from "@pokemmo/utils";
 import React from "react";
 
 interface IProps {
@@ -32,8 +32,7 @@ export function PokemonMeta(props: IProps) {
         <>
             {props.gender && (
                 <LabelAndValue vertical={props.vertical} label="Gender">
-                    {uppercaseFirst(props.gender)}
-                    {props.gender === Gender.MALE ? "♂" : "♀"}
+                    <GenderView gender={props.gender} />
                 </LabelAndValue>
             )}
             {hasStats && props.ivs && (

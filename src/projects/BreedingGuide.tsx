@@ -23,6 +23,7 @@ import {
     IPokemonBreederStub,
     OwnershipStatus,
 } from "@pokemmo/pokemon/PokemonTypes";
+import { GenderView } from "@pokemmo/projects/GenderView";
 import { BreedingAttachButton } from "@pokemmo/projects/BreedingAttachButton";
 import {
     BreedingItem,
@@ -242,9 +243,7 @@ function BreederPair(props: { pair: IBreedingPair; projectID: string }) {
                         }}
                     >
                         Hatch{" "}
-                        <span css={{ fontWeight: 500 }}>
-                            {pair.stub.gender === Gender.MALE ? "♂" : "♀"}
-                        </span>
+                        <GenderView gender={pair.stub.gender} iconOnly={true} />
                     </FormButton>
                 ) : (
                     <FormButton
@@ -291,9 +290,7 @@ function BreederPair(props: { pair: IBreedingPair; projectID: string }) {
                         }}
                     >
                         Breed{" "}
-                        <span css={{ fontWeight: 500 }}>
-                            {pair.stub.gender === Gender.MALE ? "♂" : "♀"}
-                        </span>
+                        <GenderView gender={pair.stub.gender} iconOnly={true} />
                     </FormButton>
                 )}
             </div>
