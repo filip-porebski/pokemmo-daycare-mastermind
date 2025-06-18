@@ -9,6 +9,13 @@ import {
     subtractIVRequirement,
     swapGender,
 } from "@pokemmo/pokemon/IVUtils";
+let getPokemon: (id: string) => any;
+try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    getPokemon = require("@pokemmo/data/pokedex").getPokemon;
+} catch {
+    getPokemon = () => null;
+}
 import { PokemonStoreAccessor } from "@pokemmo/pokemon/PokemonStoreAccessor";
 import {
     BreedStatus,
@@ -20,14 +27,6 @@ import {
     Stat,
 } from "@pokemmo/pokemon/PokemonTypes";
 import { hashString, uuidv4 } from "@pokemmo/utils";
-
-let getPokemon: (id: string) => any;
-try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    getPokemon = require("@pokemmo/data/pokedex").getPokemon;
-} catch {
-    getPokemon = () => null;
-}
 
 export interface IParentOptions {
     allowedIdentifiers: string[];
