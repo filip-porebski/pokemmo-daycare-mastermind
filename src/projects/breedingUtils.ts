@@ -3,7 +3,6 @@
 // Changes 2024 onwards filip-porebski
  * @license GPL-3.0-only
  */
-
 import { ivsMeetMinimums, nonEmptyIVs } from "@pokemmo/pokemon/IVUtils";
 import {
     Gender,
@@ -12,7 +11,6 @@ import {
     Stat,
 } from "@pokemmo/pokemon/PokemonTypes";
 import { difference } from "lodash-es";
-
 export enum BreedingItem {
     HP = "Power Weight",
     ATK = "Power Bracer",
@@ -22,12 +20,10 @@ export enum BreedingItem {
     SPEED = "Power Anklet",
     NATURE = "Everstone",
 }
-
 export interface IBreedingPair {
     stub: IPokemonBreederStub;
     parents: Record<Gender, IPokemonBreederStub> | null;
 }
-
 export function helpItemForPair(
     pair: IBreedingPair,
 ): Record<Gender, BreedingItem | null> {
@@ -37,11 +33,9 @@ export function helpItemForPair(
             [Gender.FEMALE]: null,
         };
     }
-
     const { male, female } = pair.parents;
     const maleStats = Object.keys(nonEmptyIVs(male.ivs));
     const femaleStats = Object.keys(nonEmptyIVs(female.ivs));
-
     let maleItem = heldItemForStat(
         (difference(maleStats, femaleStats)[0] as Stat) ?? null,
     );
@@ -53,13 +47,11 @@ export function helpItemForPair(
     } else if (female.nature) {
         femaleItem = BreedingItem.NATURE;
     }
-
     return {
         [Gender.MALE]: maleItem,
         [Gender.FEMALE]: femaleItem,
     };
 }
-
 export function heldItemForStat(stat: Stat | null): BreedingItem | null {
     switch (stat) {
         case Stat.HP:
@@ -78,7 +70,6 @@ export function heldItemForStat(stat: Stat | null): BreedingItem | null {
             return null;
     }
 }
-
 export function pokemonMatchesStub(
     pokemon: IPokemon,
     stub: IPokemonBreederStub,
@@ -86,27 +77,22 @@ export function pokemonMatchesStub(
     if (stub.gender !== pokemon.gender) {
         return false;
     }
-
     if (stub.nature && pokemon.nature !== stub.nature) {
         return false;
     }
-
     if (
         stub.forcedIdentifier &&
         stub.forcedIdentifier !== pokemon.identifier
     ) {
         return false;
     }
-
     if (stub.allowedIdentifiers.length > 0) {
         if (!stub.allowedIdentifiers.includes(pokemon.identifier)) {
             return false;
         }
     }
-
     return ivsMeetMinimums(pokemon.ivs, stub.ivs);
 }
-
 export function pairNeedsBreeding(
     pair: IBreedingPair,
     pokemonByID: Record<string, IPokemon>,
@@ -114,7 +100,6 @@ export function pairNeedsBreeding(
     if (!pair.parents) {
         return false;
     }
-
     const { male, female } = pair.parents;
     const malePokemon = male.attachedPokemonID
         ? pokemonByID[male.attachedPokemonID]
@@ -122,14 +107,11 @@ export function pairNeedsBreeding(
     const femalePokemon = female.attachedPokemonID
         ? pokemonByID[female.attachedPokemonID]
         : null;
-
     if (malePokemon && pokemonMatchesStub(malePokemon, pair.stub)) {
         return false;
     }
-
     if (femalePokemon && pokemonMatchesStub(femalePokemon, pair.stub)) {
         return false;
     }
-
     return true;
 }
