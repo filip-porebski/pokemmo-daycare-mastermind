@@ -5,6 +5,17 @@
  */
 
 import { IVBuilder } from "@pokemmo/pokemon/IVUtils";
+jest.mock("@pokemmo/data/pokedex", () => {
+    const data: Record<string, any> = {
+        tauros: { identifier: "tauros", eggGroup1: "Field", percentageMale: 100 },
+        chansey: { identifier: "chansey", eggGroup1: "Fairy", percentageMale: 0 },
+        magnemite: { identifier: "magnemite", eggGroup1: "Genderless", percentageMale: 0 },
+        deino: { identifier: "deino", eggGroup1: "Dragon", percentageMale: 50 },
+        main: { identifier: "main", eggGroup1: "Field", percentageMale: 50 },
+        magikarp: { identifier: "magikarp", eggGroup1: "Water a", percentageMale: 50 },
+    };
+    return { getPokemon: (id: string) => data[id] };
+});
 import { PokemonBuilder } from "@pokemmo/pokemon/PokemonBuilder";
 import { Gender, Stat } from "@pokemmo/pokemon/PokemonTypes";
 
@@ -177,6 +188,26 @@ describe("PokemonBuilder", () => {
             expect(countSpecialAttack).toEqual(2);
             expect(countHP).toEqual(1);
             expect(countDefense).toEqual(1);
+        });
+
+        it("uses Ditto for missing genders", () => {
+            const maleOnly = PokemonBuilder.create("tauros")
+                .ivs(IVBuilder.maxedStats([Stat.HP, Stat.DEFENSE]))
+                .gender(Gender.MALE);
+            const maleParents = maleOnly.calculateBreeders();
+            expect(maleParents[1].allowedIdentifiers).toContain("ditto");
+
+            const femaleOnly = PokemonBuilder.create("chansey")
+                .ivs(IVBuilder.maxedStats([Stat.HP, Stat.DEFENSE]))
+                .gender(Gender.FEMALE);
+            const femaleParents = femaleOnly.calculateBreeders();
+            expect(femaleParents[1].allowedIdentifiers).toContain("ditto");
+
+            const genderless = PokemonBuilder.create("magnemite")
+                .ivs(IVBuilder.maxedStats([Stat.HP, Stat.DEFENSE]))
+                .gender(Gender.MALE);
+            const genderlessParents = genderless.calculateBreeders();
+            expect(genderlessParents[1].allowedIdentifiers).toContain("ditto");
         });
     });
 });

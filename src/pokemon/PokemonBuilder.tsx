@@ -9,6 +9,13 @@ import {
     subtractIVRequirement,
     swapGender,
 } from "@pokemmo/pokemon/IVUtils";
+let getPokemon: (id: string) => any;
+try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    getPokemon = require("@pokemmo/data/pokedex").getPokemon;
+} catch {
+    getPokemon = () => null;
+}
 import { PokemonStoreAccessor } from "@pokemmo/pokemon/PokemonStoreAccessor";
 import {
     BreedStatus,
@@ -225,10 +232,29 @@ export class PokemonBuilder extends PokemonStoreAccessor {
 
         // Select genders and names
         const { forcedIdentifier } = childStub;
+        const baseIdentifier = forcedIdentifier ?? childStub.allowedIdentifiers[0];
+        const dexMon = getPokemon(baseIdentifier);
+        const supportsGender = (gender: Gender) => {
+            if (!dexMon) {
+                return true;
+            }
+            if (dexMon.eggGroup1 === "Genderless") {
+                return false;
+            }
+            const pct = Number(dexMon.percentageMale);
+            if (gender === Gender.MALE) {
+                return pct > 0;
+            }
+            return pct < 100;
+        };
+
         const firstParentGender = swapGender(mostExpensive.gender);
 
         // The female identifier must be preserved down the purely female line.
         const forcedIdentifierForGender = (gender: Gender): string | null => {
+            if (!supportsGender(gender)) {
+                return null;
+            }
             if (gender === Gender.FEMALE && forcedIdentifier) {
                 return forcedIdentifier;
             } else {
@@ -236,6 +262,9 @@ export class PokemonBuilder extends PokemonStoreAccessor {
             }
         };
         const allowedIdentifiersForGender = (gender: Gender): string[] => {
+            if (!supportsGender(gender)) {
+                return ["ditto"];
+            }
             if (gender === Gender.FEMALE && forcedIdentifier) {
                 return [forcedIdentifier];
             } else {

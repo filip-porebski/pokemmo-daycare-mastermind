@@ -64,6 +64,9 @@ export function PokemonSelect(_props: IProps) {
         const { pokedexMon } = option;
 
         if (forceGender != null) {
+            if (pokedexMon.eggGroup1 === "Genderless") {
+                return false;
+            }
             if (
                 pokedexMon.percentageMale === 100 &&
                 forceGender === Gender.FEMALE
