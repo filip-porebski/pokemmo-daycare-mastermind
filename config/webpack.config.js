@@ -180,7 +180,7 @@ module.exports = function (webpackEnv) {
       // In development, it does not produce real files.
       filename: isEnvProduction
         ? 'static/js/[name].[contenthash:8].js'
-        : isEnvDevelopment && 'static/js/bundle.js',
+        : isEnvDevelopment && 'static/js/[name].bundle.js',
       // TODO: remove this when upgrading to webpack 5
       // There are also additional JS chunk files if you use code splitting.
       chunkFilename: isEnvProduction
@@ -270,9 +270,11 @@ module.exports = function (webpackEnv) {
       // Keep the runtime chunk separated to enable long term caching
       // https://twitter.com/wSokra/status/969679223278505985
       // https://github.com/facebook/create-react-app/issues/5358
-      runtimeChunk: {
-        name: entrypoint => `runtime-${entrypoint.name}`,
-      },
+      runtimeChunk: isEnvProduction
+        ? {
+            name: entrypoint => `runtime-${entrypoint.name}`,
+          }
+        : undefined,
     },
     resolve: {
       // This allows you to set a fallback for where Webpack should look for modules.
