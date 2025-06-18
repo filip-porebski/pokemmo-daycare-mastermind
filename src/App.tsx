@@ -7,6 +7,7 @@
 import createCache from "@emotion/cache";
 import { CacheProvider } from "@emotion/core";
 import { HelpPage } from "@pokemmo/help/HelpPage";
+import { HomePage } from "@pokemmo/home/HomePage";
 import { PokemonPage } from "@pokemmo/pokemon/PokemonPage";
 import { ProjectPage } from "@pokemmo/projects/ProjectPage";
 import { getStore } from "@pokemmo/state/store";
@@ -28,10 +29,10 @@ function App() {
                 <Provider store={getStore()}>
                     <BrowserRouter>
                         <Switch>
+                            <Route exact path="/" component={HomePage} />
                             <Route path={"/projects"} component={ProjectPage} />
                             <Route path="/pokemon" component={PokemonPage} />
                             <Route path="/help" component={HelpPage} />
-                            <Redirect exact from="/" to="/projects" />
                         </Switch>
                     </BrowserRouter>
                 </Provider>
