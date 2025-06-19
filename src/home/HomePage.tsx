@@ -9,6 +9,10 @@ import IconFeatureBreeding from "@pokemmo/icons/IconFeatureBreeding.svg";
 import IconFeatureCost from "@pokemmo/icons/IconFeatureCost.svg";
 import IconFeatureIV from "@pokemmo/icons/IconFeatureIV.svg";
 import IconFeatureTracking from "@pokemmo/icons/IconFeatureTracking.svg";
+import IconFeatureGender from "@pokemmo/icons/IconFeatureGender.svg";
+import IconFeatureEggGroup from "@pokemmo/icons/IconFeatureEggGroup.svg";
+import IconMale from "@pokemmo/icons/IconMale.svg";
+import IconFemale from "@pokemmo/icons/IconFemale.svg";
 import { Footer } from "@pokemmo/layout/Footer";
 import React from "react";
 import { useHistory } from "react-router-dom";
@@ -258,6 +262,32 @@ export function HomePage() {
                                 <p css={{ margin: 0, lineHeight: 1.6, color: "#4A4F73", opacity: 0.8 }}>
                                     Organize multiple breeding projects with progress tracking, 
                                     shopping lists, and breeding guides for each target Pokémon.
+                                </p>
+                            </DecoratedCard>
+
+                            <DecoratedCard className="feature-card">
+                                <div className="feature-icon">
+                                    <IconFeatureGender css={{ width: 28, height: 28, color: colorPrimary.string() }} />
+                                </div>
+                                <h4 css={{ fontSize: 18, marginTop: 0, marginBottom: 12, fontWeight: 600 }}>
+                                    Gender Optimization
+                                </h4>
+                                <p css={{ margin: 0, lineHeight: 1.6, color: "#4A4F73", opacity: 0.8 }}>
+                                    Optimize breeding strategies based on gender ratios and 
+                                    inheritance patterns to maximize desired trait transmission.
+                                </p>
+                            </DecoratedCard>
+
+                            <DecoratedCard className="feature-card">
+                                <div className="feature-icon">
+                                    <IconFeatureEggGroup css={{ width: 28, height: 28, color: colorPrimary.string() }} />
+                                </div>
+                                <h4 css={{ fontSize: 18, marginTop: 0, marginBottom: 12, fontWeight: 600 }}>
+                                    Egg Group Analysis
+                                </h4>
+                                <p css={{ margin: 0, lineHeight: 1.6, color: "#4A4F73", opacity: 0.8 }}>
+                                    Analyze egg group compatibility and find the most efficient 
+                                    cross-breeding paths for passing down rare moves and abilities.
                                 </p>
                             </DecoratedCard>
                         </div>

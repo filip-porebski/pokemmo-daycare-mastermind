@@ -1,0 +1,11 @@
+                        <div css={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(3, 1fr)",
+                            gap: 24,
+                            "@media (max-width: 992px)": {
+                                gridTemplateColumns: "repeat(2, 1fr)"
+                            },
+                            "@media (max-width: 576px)": {
+                                gridTemplateColumns: "1fr"
+                            }
+                        }}>
