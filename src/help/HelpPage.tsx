@@ -6,7 +6,6 @@
 
 import { ButtonType, FormButton } from "@pokemmo/form/FormButton";
 import { PageLayout } from "@pokemmo/layout/PageLayout";
-import { DarkModeToggle } from "@pokemmo/layout/DarkModeToggle";
 import React from "react";
 import { clear } from "redux-localstorage-simple";
 
@@ -30,7 +29,6 @@ export function HelpPage() {
                     >
                         Clear All Data
                     </FormButton>
-                    <DarkModeToggle />
                 </div>
             }
         />

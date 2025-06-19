@@ -38,10 +38,6 @@ export function CssReset() {
                     line-height: 1.6;
                 }
 
-                body.dark {
-                    background: #1e1e1e;
-                    color: #f4f4f4;
-                }
                 *,
                 *:before,
                 *:after {
