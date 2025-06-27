@@ -29,7 +29,6 @@ import {
     BreedingItem,
     helpItemForPair,
     IBreedingPair,
-    pairNeedsBreeding,
 } from "@pokemmo/projects/breedingUtils";
 import { useProject } from "@pokemmo/projects/projectHooks";
 import { useStubActions } from "@pokemmo/projects/stubSlice";
@@ -100,11 +99,6 @@ export function BreedingGuide(props: IProps) {
         ) {
             const malePokemon = pokemonByID[male.attachedPokemonID];
             const femalePokemon = pokemonByID[female.attachedPokemonID];
-
-            if (!pairNeedsBreeding(pair, pokemonByID)) {
-                completePairs.push(pair);
-                return;
-            }
 
             if (
                 malePokemon?.breedStatus === BreedStatus.NONE &&
